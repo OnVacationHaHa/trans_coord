@@ -1,39 +1,18 @@
 import numpy as np
-import math
-import random
 from scipy.optimize import minimize
 
 
-# target_longitude = -111.928061
-# target_latitude = 33.424237
-# R4longitude = 6371393
-# R4latitude = 6356755
-#
-#
-# def LatLong2XY(long, lat):
-#     lat_diff = float(lat - target_latitude)
-#     long_diff = float(long - target_longitude)
-#     Y = lat_diff / 180 * R4latitude * math.pi
-#     X = long_diff / 180 * R4longitude * math.pi
-#     return (X, Y)
-#
-#
-# (x_target, y_target) = LatLong2XY(target_longitude, target_latitude)
-# L4longitude = 2 * math.pi * R4longitude
-# L4latitude = 2 * math.pi * R4latitude
-
-
-# def XY2LatLong(X, Y):
-#     longitude = (X - x_target) / L4longitude * 360 + target_longitude
-#     latitude = (Y - y_target) / L4latitude * 360 + target_latitude
-#     return (longitude, latitude)
-
-
-def fun(args):
-    x_input, y_input, target_x, target_y = args[0], args[1], args[2], args[3]
+def fun1(args):
+    x_input, target_x = args[0], args[1]
     count = len(x_input)
-    v = lambda x: sum([(x[0] * x_input[i] + x[1] * y_input[i] + x[2] - target_x[i]) ** 2 + (
-            x[3] * x_input[i] + x[4] * y_input[i] + x[5] - target_y[i]) ** 2 for i in range(count)])
+    v = lambda x: (sum([(x[0] * x_input[i] + x[1] - target_x[i]) ** 2 for i in range(count)]) / count) ** 0.5
+    return v
+
+
+def fun2(args):
+    y_input, target_y = args[0], args[1]
+    count = len(y_input)
+    v = lambda x: (sum([(x[0] * y_input[i] + x[1] - target_y[i]) ** 2 for i in range(count)]) / count) ** 0.5
     return v
 
 
@@ -59,11 +38,13 @@ def trans(file_path=r".\node_coord.csv"):
     y_input = [rec_coord[key][1] for key in keys]
     target_x = [rec_gps[key][0] for key in keys]
     target_y = [rec_gps[key][1] for key in keys]
-    args = [x_input, y_input, target_x, target_y]
-    x0 = np.array([1, 1, 1, 1, 1, 1])
-    res = minimize(fun(args), x0, method='SLSQP')
+    args1 = [x_input, target_x]
+    args2 = [y_input, target_y]
+    x0 = np.array([1, 1])
+    res1 = minimize(fun1(args1), x0, method='SLSQP')
+    res2 = minimize(fun2(args2), x0, method='SLSQP')
     trans_rec = dict()
-    trans_fun = lambda x,y:(res.x[0]*x+res.x[1]*y+res.x[2],res.x[3]*x+res.x[4]*y+res.x[5])
+    trans_fun = lambda x, y: (res1.x[0] * x + res1.x[1], res2.x[0] * y + res2.x[1])
     for key in rec_coord.keys():
         if key in keys:
             trans_rec[key] = rec_gps[key]
