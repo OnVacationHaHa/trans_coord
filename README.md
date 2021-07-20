@@ -1,7 +1,7 @@
 # trans_coord
 What does this code do?
 
-Taking the point containing the latitude and longitude coordinates in the input file as the reference point, the conversion relationship between the X-Y coordinate system and the latitude and longitude coordinate system is deduced, and the latitude and longitude coordinates of the nodes without latitude and longitude are further calculated
+Taking the points containing latitude and longitude as reference points, a conversion relationship between X-Y coordinate system and latitude and longitude coordinate system is deduced, and the latitude and longitude coordinates of the nodes without latitude and longitude are further calculated.
 
 
 What is the conversion relationship between the two coordinate systems?
